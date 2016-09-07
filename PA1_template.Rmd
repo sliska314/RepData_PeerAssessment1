@@ -37,7 +37,7 @@ Create path to the temporary data directory where the zipfile will be extracted
 data_dir_path <- tempfile( )
 ```
 
-Extract zipfile to temporatory data directory
+Extract zipfile to temporary data directory
 ```{r}
 unzip(
   zipfile = DATA_ZIPFILE_PATH,
@@ -166,7 +166,7 @@ interval_step_avg$interval[ which.max( interval_step_avg$steps ) ]
 
 ## Imputing missing values
 
-Calculate and report the total number of missing values in the dataset for each column
+Calculate and report the total number of missing values in the data set for each column
 ```{r}
 col_na_count <- sapply( df, function(x) sum(is.na(x)) )
 print( col_na_count )
@@ -217,7 +217,7 @@ Copy original steps values to new column of imputed steps (isteps)
 df$isteps <- df$steps
 ```
 
-Replace NA value of istep with interval-weekday average
+Replace NA value of isteps with interval-weekday average
 ```{r}
 na_mask <- is.na( df$isteps )
 df$isteps[ na_mask ] <- uid_avg[ df$uid[ na_mask ] ]

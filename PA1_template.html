@@ -135,7 +135,7 @@ $(document).ready(function () {
 <pre class="r"><code>DATA_FILE_LOCAL_PATH &lt;- 'activity.csv'</code></pre>
 <p>Create path to the temporary data directory where the zipfile will be extracted</p>
 <pre class="r"><code>data_dir_path &lt;- tempfile( )</code></pre>
-<p>Extract zipfile to temporatory data directory</p>
+<p>Extract zipfile to temporary data directory</p>
 <pre class="r"><code>unzip(
   zipfile = DATA_ZIPFILE_PATH,
   exdir = data_dir_path )</code></pre>
@@ -236,7 +236,7 @@ print( h )</code></pre>
 </div>
 <div id="imputing-missing-values" class="section level2">
 <h2>Imputing missing values</h2>
-<p>Calculate and report the total number of missing values in the dataset for each column</p>
+<p>Calculate and report the total number of missing values in the data set for each column</p>
 <pre class="r"><code>col_na_count &lt;- sapply( df, function(x) sum(is.na(x)) )
 print( col_na_count )</code></pre>
 <pre><code>##    steps     date interval 
@@ -268,7 +268,7 @@ print( col_na_count )</code></pre>
 names(uid_avg) &lt;- df_uid_avg$uid</code></pre>
 <p>Copy original steps values to new column of imputed steps (isteps)</p>
 <pre class="r"><code>df$isteps &lt;- df$steps</code></pre>
-<p>Replace NA value of istep with interval-weekday average</p>
+<p>Replace NA value of isteps with interval-weekday average</p>
 <pre class="r"><code>na_mask &lt;- is.na( df$isteps )
 df$isteps[ na_mask ] &lt;- uid_avg[ df$uid[ na_mask ] ]</code></pre>
 </div>
