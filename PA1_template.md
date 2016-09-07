@@ -1,19 +1,16 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: yes
----
+# Reproducible Research: Peer Assessment 1
 
 ## Preliminary
 
 Load knitr
-```{r}
+
+```r
 library(knitr)
 ```
 
 Change default knitr figure path
-```{r}
+
+```r
 opts_chunk$set( fig.path = 
   paste( 'figure', .Platform$file.sep, sep = '' ) )
 ```
@@ -23,29 +20,34 @@ opts_chunk$set( fig.path =
 ## Loading and preprocessing the data
 
 Declare the path to the zipfile containing the data file
-```{r}
+
+```r
 DATA_ZIPFILE_PATH <- 'activity.zip'
 ```
 
 Declare the local path to data CSV file as specified by the directory structure of the zipfile
-```{r}
+
+```r
 DATA_FILE_LOCAL_PATH <- 'activity.csv'
 ```
 
 Create path to the temporary data directory where the zipfile will be extracted
-```{r}
+
+```r
 data_dir_path <- tempfile( )
 ```
 
 Extract zipfile to temporatory data directory
-```{r}
+
+```r
 unzip(
   zipfile = DATA_ZIPFILE_PATH,
   exdir = data_dir_path )
 ```
 
 Build the path to data CSV file
-```{r}
+
+```r
 data_file_path <- file.path(
   data_dir_path,
   DATA_FILE_LOCAL_PATH )
@@ -54,7 +56,8 @@ data_file_path <- file.path(
 ### Load the data (i.e. read.csv())
 
 Read the CSV file into a data frame specifying column classes
-```{r}
+
+```r
 df <- read.csv(
   file = data_file_path,
   colClasses = c( 'numeric', 'Date', 'numeric' ) )
@@ -68,7 +71,8 @@ df <- read.csv(
 ### Calculate the total number of steps taken per day
 
 Compute the total number of steps taken each day
-```{r}
+
+```r
 daily_step_sum <- aggregate(
   formula = steps ~ date,
   data = df,
@@ -80,12 +84,14 @@ daily_step_sum <- aggregate(
 ### Histogram of the total number of steps taken each day
 
 Load ggplot
-```{r}
+
+```r
 library(ggplot2)
 ```
 
 Use a histogram to plot the frequency of steps taken each day
-```{r}
+
+```r
 h <- ggplot(
   data = daily_step_sum,
   mapping = aes( x = steps ) )
@@ -104,17 +110,29 @@ h <- h + labs(
 print( h )
 ```
 
+![](figure/unnamed-chunk-11-1.png)<!-- -->
+
 
 ### Mean and median number of steps taken each day
 
 Calculate the mean number of steps per day
-```{r}
+
+```r
 mean( daily_step_sum$steps )
 ```
 
+```
+## [1] 10766.19
+```
+
 Calculate the median number of steps per day
-```{r}
+
+```r
 median( daily_step_sum$steps )
+```
+
+```
+## [1] 10765
 ```
 
 
@@ -122,7 +140,8 @@ median( daily_step_sum$steps )
 ## What is the average daily activity pattern?
 
 Compute the mean number of steps taken for each interval
-```{r}
+
+```r
 interval_step_avg <- aggregate(
   formula = steps ~ interval,
   data = df,
@@ -133,7 +152,8 @@ interval_step_avg <- aggregate(
 ### Time series plot of the average number of steps taken
 
 Depict the average number of step for each interval using a line plot
-```{r}
+
+```r
 h <- ggplot(
   data = interval_step_avg,
   mapping = aes( 
@@ -155,11 +175,18 @@ h <- h + labs(
 print( h )
 ```
 
+![](figure/unnamed-chunk-15-1.png)<!-- -->
+
 ### The 5-minute interval that, on average, contains the maximum number of steps
 
 Find and report of interval that on average contains the maximum number of steps
-```{r}
+
+```r
 interval_step_avg$interval[ which.max( interval_step_avg$steps ) ]
+```
+
+```
+## [1] 835
 ```
 
 
@@ -167,21 +194,38 @@ interval_step_avg$interval[ which.max( interval_step_avg$steps ) ]
 ## Imputing missing values
 
 Calculate and report the total number of missing values in the dataset for each column
-```{r}
+
+```r
 col_na_count <- sapply( df, function(x) sum(is.na(x)) )
 print( col_na_count )
+```
+
+```
+##    steps     date interval 
+##     2304        0        0
 ```
 
 Only the steps column is missing values.
 
 Report the total number of missing steps values
-```{r}
+
+```r
 print( col_na_count[1] )
 ```
 
+```
+## steps 
+##  2304
+```
+
 Report the fraction of step entries missing values
-```{r}
+
+```r
 mean( is.na( df$steps ) )
+```
+
+```
+## [1] 0.1311475
 ```
 
 
@@ -190,7 +234,8 @@ mean( is.na( df$steps ) )
 Missing step values are imputed by replacing NA with the average number of steps taken during a given interval for a given weekday.
 
 First, we a column with a unique id column (uid) for each interval-weekday
-```{r}
+
+```r
 df$uid <- paste( 
   weekdays( df$date, abbreviate = TRUE ),
   sprintf( '%03d', df$interval / 5 ),
@@ -198,7 +243,8 @@ df$uid <- paste(
 ```
 
 Next, compute average number of steps taken during each uid
-```{r}
+
+```r
 df_uid_avg <- aggregate(
   formula = steps ~ uid,
   data = df,
@@ -207,18 +253,21 @@ df_uid_avg <- aggregate(
 ```
 
 Convert data frame columns into a (labeled) vector
-```{r}
+
+```r
 uid_avg <- df_uid_avg$steps
 names(uid_avg) <- df_uid_avg$uid
 ```
 
 Copy original steps values to new column of imputed steps (isteps)
-```{r}
+
+```r
 df$isteps <- df$steps
 ```
 
 Replace NA value of istep with interval-weekday average
-```{r}
+
+```r
 na_mask <- is.na( df$isteps )
 df$isteps[ na_mask ] <- uid_avg[ df$uid[ na_mask ] ]
 ```
@@ -227,7 +276,8 @@ df$isteps[ na_mask ] <- uid_avg[ df$uid[ na_mask ] ]
 ### Histogram of the total number of steps taken each day after missing values are imputed
 
 Compute the mean number of steps taken each day
-```{r}
+
+```r
 daily_istep_sum <- aggregate(
   formula = isteps ~ date,
   data = df,
@@ -236,7 +286,8 @@ daily_istep_sum <- aggregate(
 ```
 
 Use a histogram to plot the frequency of imputed steps (isteps) taken each day
-```{r}
+
+```r
 h <- ggplot(
   data = daily_istep_sum,
   mapping = aes( x = isteps ) )
@@ -255,16 +306,28 @@ h <- h + labs(
 print( h )
 ```
 
+![](figure/unnamed-chunk-26-1.png)<!-- -->
+
 ### Mean and median number of steps taken each day with imputed missing values
 
 Calculate the mean number of steps per day
-```{r}
+
+```r
 mean( daily_istep_sum$isteps )
 ```
 
+```
+## [1] 10821.21
+```
+
 Calculate the median number of steps per day
-```{r}
+
+```r
 median( daily_istep_sum$isteps )
+```
+
+```
+## [1] 11015
 ```
 
 
@@ -275,7 +338,8 @@ median( daily_istep_sum$isteps )
 ### Create a new factor variable in the dataset with two levels - 'weekday' and 'weekend'
 
 Create a factor variable with the weekday name for each date
-```{r}
+
+```r
 weekday_name <- factor( 
   x = weekdays( df$date ),
   levels = c(
@@ -289,7 +353,8 @@ weekday_name <- factor(
 ```
 
 Add a column with the type of day ('weekday'/'weekend'), use the explicit factor ordering for weekday column to build column
-```{r}
+
+```r
 df$weekday_type <- factor(
   x = ( as.integer( weekday_name ) %/% 6L + 1L ),
   labels = c(
@@ -301,7 +366,8 @@ df$weekday_type <- factor(
 ### Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
 
 Compute the mean number of steps taken for each interval and weekday type
-```{r}
+
+```r
 interval_istep_avg <- aggregate(
   formula = steps ~ interval + weekday_type,
   data = df,
@@ -309,7 +375,8 @@ interval_istep_avg <- aggregate(
 ```
 
 Depict the average number of step for each interval using a line plot
-```{r}
+
+```r
 h <- ggplot(
   data = interval_istep_avg,
   mapping = aes( 
@@ -335,10 +402,13 @@ h <- h + labs(
 print( h )
 ```
 
+![](figure/unnamed-chunk-32-1.png)<!-- -->
+
 ### The 5-minute interval that, on average, contains the maximum number of steps for weekdays and weekends
 
 Calculate the row indices with the maximum number of steps for weekdays and weekends
-```{r}
+
+```r
 row_indices <- with( interval_istep_avg,
   tapply(
     X = steps,
@@ -347,12 +417,22 @@ row_indices <- with( interval_istep_avg,
 ```
 
 The interval that on average contains the maximum number of steps for weekdays is
-```{r}
+
+```r
 interval_istep_avg$interval[ row_indices[ 'weekday' ] ]
 ```
 
+```
+## [1] 835
+```
+
 The interval that on average contains the maximum number of steps for weekends is
-```{r}
+
+```r
 interval_istep_avg$interval[ row_indices[ 'weekend' ] ]
+```
+
+```
+## [1] 915
 ```
 
